@@ -2,7 +2,10 @@ html:not([rgh-OFF-scrollable-areas]) {
 	/* Note: Don't add support for commit view dropdown comments #8100 */
 	/* Note: The selectors here must be kept in sync with scrollableSelector in scrollable-areas.tsx */
 	.comment-body,
-	[data-testid='markdown-body'] {
+	[data-testid='markdown-body'],
+	/* PR Overview page #10381 */
+	[data-testid='timeline-item'] .markdown-body,
+	section[aria-label='Description'] .markdown-body {
 		blockquote,
 		pre {
 			&:not(

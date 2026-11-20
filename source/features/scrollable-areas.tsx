@@ -10,6 +10,9 @@ import {is, not} from '../helpers/css-selectors.js';
 const scrollableSelector = is(
 	'.comment-body',
 	'[data-testid="markdown-body"]',
+	// PR Overview page #10381
+	'[data-testid="timeline-item"] .markdown-body',
+	'section[aria-label="Description"] .markdown-body',
 )
 	+ ' '
 	+ is(
