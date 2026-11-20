@@ -16,6 +16,7 @@ import observe, {waitForElement} from '../helpers/selector-observer.js';
 const fieldSelector = [
 	legacyCommentField,
 	'#react-issue-comment-composer textarea',
+	'form[aria-label="Add comment form"] textarea', // PR Overview page #10381
 ] as const;
 
 function prefixUserMention(userMention: string): string {
@@ -119,10 +120,12 @@ function addQuickMentionPr(commentDropdown: HTMLDetailsElement): void {
 
 function init(signal: AbortSignal): void {
 	if (pageDetect.isPR()) {
+		// Classic PR conversation
 		observe(prCommentMenu, addQuickMentionPr, {signal});
-	} else {
-		observe(commentMenuButton, addQuickMentionIssue, {signal});
 	}
+
+	// Issues and PR Overview page #10381
+	observe(commentMenuButton, addQuickMentionIssue, {signal});
 }
 
 void features.add(import.meta.url, {

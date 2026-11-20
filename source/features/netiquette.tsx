@@ -8,7 +8,8 @@ import observe from '../helpers/selector-observer.js';
 import NetiquetteBanner from './netiquette.svelte';
 
 function mountBanner(commentField: HTMLElement): void {
-	const reactWrapper = closestElementOptional('[class^="InlineAutocomplete"]', commentField);
+	const reactWrapper = closestElementOptional('[class^="InlineAutocomplete"]', commentField)
+		?? closestElementOptional('[class^="inputWrapper"]', commentField); // PR Overview page #10381
 	const target = reactWrapper ?? commentField;
 	mount(NetiquetteBanner, {
 		target,

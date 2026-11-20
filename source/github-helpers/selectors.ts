@@ -157,6 +157,9 @@ export const newCommentField = [
 
 	// Issue comment
 	'textarea[aria-labelledby="comment-composer-heading"]',
+
+	// PR comment, PR Overview page #10381
+	'form[aria-label="Add comment form"] textarea',
 ];
 
 export const newCommentField_ = requiresLogin;
@@ -166,6 +169,8 @@ export const commentSelector = is(
 	'.react-issue-comment', // Issue comment
 	'[data-testid="review-thread"] > div', // Review thread comment
 	'.js-comment', // PR description or comment
+	'article[id^="issuecomment-"]', // PR comment, PR Overview page #10381
+	'article[id^="pullrequestreview-"]', // PR review, PR Overview page
 );
 export const commentSelector_ = [
 	[1, 'https://github.com/refined-github/refined-github/issues/10317'],
@@ -193,6 +198,7 @@ export const commitHashLinkInLists = [
 	'[data-testid="commit-row-browse-repo"]', // `isCommitList`
 	'a[id^="commit-details-"]', // `isPRCommitList`
 	'.js-details-container .text-right code a.Link--secondary', // `isPRConversation`
+	'[data-testid="timeline-commit-row"] a[class^="Sha"]', // `isPRConversation`, PR Overview page #10381
 ] as unknown as Array<'a'>;
 export const commitHashLinkInLists_ = [
 	[
