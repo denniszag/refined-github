@@ -19,6 +19,17 @@ function resolvedCommentsSelector(clickedItem: HTMLElement): string {
 	return `.js-resolvable-thread-toggler[aria-expanded="${clickedItem.getAttribute('aria-expanded')!}"]:not(.d-none)`;
 }
 
+const reviewThreadToggle = '[data-testid="review-thread-focus-target"] button' + is(
+	'[aria-label^="Open review comment"]',
+	'[aria-label^="Close review comment"]',
+);
+
+function reviewThreadTogglesSelector(clickedItem: HTMLElement): string {
+	// "Open" or "Close"
+	const action = clickedItem.getAttribute('aria-label')!.split(' ', 1)[0];
+	return `[data-testid="review-thread-focus-target"] button[aria-label^="${action} review comment"]`;
+}
+
 function resolveConversationsSelector(clickedItem: HTMLElement): string {
 	const isResolving = clickedItem.textContent.includes('Resolve');
 	return `form[action$="/${isResolving ? 'resolve' : 'unresolve'}"] button[type="submit"]`;
@@ -36,7 +47,7 @@ const buttonAddSuggestionToBatchSelector = is(
 );
 
 function markdownCommentSelector(clickedItem: HTMLElement): string {
-	const {id} = closestElement('.TimelineItem-body[id]', clickedItem);
+	const {id} = closestElement(is('.TimelineItem-body[id]', 'article[id]'), clickedItem);
 	return `#${id} .markdown-body details > summary`;
 }
 
@@ -49,6 +60,10 @@ function init(signal: AbortSignal): void {
 
 	// Review comments in PR
 	delegate('.js-file .js-resolvable-thread-toggler', 'click', clickAll(resolvedCommentsSelector), {signal});
+
+	// Review threads in PR Overview page #10381
+	// `capture` reads the button's label before React toggles it
+	delegate(reviewThreadToggle, 'click', clickAll(reviewThreadTogglesSelector), {signal, capture: true});
 
 	// "Resolve conversation" / "Unresolve conversation" buttons in PR conversations
 	delegate(
@@ -66,9 +81,14 @@ function init(signal: AbortSignal): void {
 	delegate(commitMessageSelector, 'click', clickAll(commitMessageSelector), {signal});
 
 	// <details> elements in issue/PR comment Markdown content
-	delegate('.TimelineItem-body[id] .markdown-body details > summary', 'click', clickAll(markdownCommentSelector), {
-		signal,
-	});
+	delegate(
+		is('.TimelineItem-body[id]', '[data-testid="timeline-item"] article[id]') + ' .markdown-body details > summary',
+		'click',
+		clickAll(markdownCommentSelector),
+		{
+			signal,
+		},
+	);
 
 	// "Add suggestion to batch" buttons in PR files
 	delegate(buttonAddSuggestionToBatchSelector, 'click', clickAll(buttonAddSuggestionToBatchSelector), {
