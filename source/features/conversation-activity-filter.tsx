@@ -8,6 +8,7 @@ import {get} from 'svelte/store';
 import features from '../feature-manager.js';
 import getCommentAuthor from '../github-helpers/get-comment-author.js';
 import {registerHotkey} from '../github-helpers/hotkey.js';
+import isPrOverview from '../github-helpers/is-pr-overview.js';
 import {
 	activityFilterState,
 	fetchStateForCurrentUrl,
@@ -159,6 +160,10 @@ void features.add(import.meta.url, {
 	},
 	include: [
 		pageDetect.isConversation,
+	],
+	exclude: [
+		// GitHub has native comment filters and the timeline no longer has events
+		isPrOverview,
 	],
 	init,
 });
