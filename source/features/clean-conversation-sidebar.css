@@ -13,6 +13,16 @@ html:not([rgh-OFF-clean-conversation-sidebar]) {
 			}
 		}
 	}
+
+	/* PR Overview page #10381 */
+	section[data-overview-sidebar-item] {
+		/* Hide read-only empty sections */
+		&:has(> div > span[class^='emptyState']):not(:has(.octicon-gear)),
+		/* Hide empty text in case section is not read-only */
+		> div > span[class^='emptyState'] {
+			display: none;
+		}
+	}
 }
 
 /* Legacy styles */
