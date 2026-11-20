@@ -208,6 +208,7 @@ function init(signal: AbortSignal): void {
 			// `batch-deferred-content` means the participant list hasn't loaded yet
 			'.has-reactions .js-comment-reactions-options:not(batch-deferred-content .js-comment-reactions-options)',
 			'div[aria-label="Reactions"]',
+			'div[role="toolbar"][aria-label^="Reactions for "]', // PR Overview page #10381
 		],
 		observeCommentReactions,
 		{signal},
