@@ -4,6 +4,11 @@ import * as pageDetect from 'github-url-detection';
 import {$$, closestElement, lastElementOptional} from 'select-dom';
 
 import features from '../feature-manager.js';
+import api from '../github-helpers/api.js';
+import {getConversationNumber} from '../github-helpers/index.js';
+import isPrOverview from '../github-helpers/is-pr-overview.js';
+import {has} from '../helpers/css-selectors.js';
+import observe from '../helpers/selector-observer.js';
 
 function markDeletedBranch(element: HTMLElement): void {
 	element.title = 'This branch has been deleted';
@@ -14,6 +19,28 @@ function wasBranchDeleted(): boolean {
 	const lastBranchEvent = lastElementOptional('.TimelineItem-body .user-select-contain.commit-ref');
 	return Boolean(lastBranchEvent) // No branch events at all
 		&& closestElement('.TimelineItem-body', lastBranchEvent).textContent.includes(' deleted ');
+}
+
+// The PR Overview page has no branch events in the timeline #10381
+async function wasBranchDeletedApi(): Promise<boolean> {
+	const {repository} = await api.v4(`
+		repository() {
+			pullRequest(number: ${getConversationNumber()!}) {
+				headRef { id }
+				headRepository { id }
+			}
+		}
+	`);
+	// If the head repository was deleted, GitHub already shows it
+	return !repository.pullRequest.headRef && Boolean(repository.pullRequest.headRepository);
+}
+
+function initOverview(signal: AbortSignal): void {
+	observe(
+		'a[data-component="BranchName"]' + has('~ [aria-label="Copy head branch name to clipboard"]'),
+		markDeletedBranch,
+		{signal},
+	);
 }
 
 function parseBranchName(element: HTMLElement): string {
@@ -43,6 +70,13 @@ void features.add(import.meta.url, {
 	awaitDomReady: true, // Must wait for the last one
 	deduplicate: 'has-rgh-inner',
 	init,
+}, {
+	asLongAs: [
+		isPrOverview,
+		wasBranchDeletedApi,
+	],
+	requiresToken: true,
+	init: initOverview,
 });
 
 /*
