@@ -3,6 +3,8 @@ import delegate, {type DelegateEventHandler} from 'delegate-it';
 export const commitTitleFieldSelector = [
 	// PR merge message field
 	'[data-testid="mergebox-partial"] input[type="text"]',
+	// PR merge dialog on new PR Overview page #10381
+	'[role="dialog"]:has([class*="ConfirmMerge"]) input[type="text"]',
 	// Commit title on edit file page
 	'#commit-message-input',
 ];

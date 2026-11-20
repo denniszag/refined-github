@@ -6,14 +6,19 @@ import {$, $optional} from 'select-dom';
 import features from '../feature-manager.js';
 import onCommitTitleUpdate from '../github-events/on-commit-title-update.js';
 import api from '../github-helpers/api.js';
-import {getConversationNumber, userCanLikelyMergePr} from '../github-helpers/index.js';
+import {userHasPushAccess} from '../github-helpers/get-user-permission.js';
+import {getConversationNumber} from '../github-helpers/index.js';
 import parseRenderedText from '../github-helpers/parse-rendered-text.js';
 import {confirmMergeButton} from '../github-helpers/selectors.js';
 import cleanPrCommitTitle from '../helpers/pr-commit-cleaner.js';
 import observe from '../helpers/selector-observer.js';
 import {setReactInputValue} from '../helpers/set-react-text-field-value.js';
 
-const commitTitleFieldSelector = '[data-testid="mergebox-partial"] input[type="text"]';
+const commitTitleFieldSelector = [
+	'[data-testid="mergebox-partial"] input[type="text"]',
+	// New PR Overview page #10381
+	'[role="dialog"]:has([class*="ConfirmMerge"]) input[type="text"]',
+] as const;
 
 function getCurrentCommitTitle(): string {
 	return $(commitTitleFieldSelector).value.trim();
@@ -28,6 +33,8 @@ const prTitleSelector = '[data-component="TitleArea"] h1';
 function createCommitTitle(): string {
 	const prTitle = $([
 		`${prTitleSelector} .markdown-title`,
+		// New PR Overview page #10381
+		`${prTitleSelector} [class*="markdownTitle"]`,
 		'div[class^="prc-PageLayout-Header"] input',
 	]);
 	const prTitleText = prTitle instanceof HTMLInputElement ? prTitle.value.trim() : parseRenderedText(prTitle);
@@ -117,7 +124,7 @@ function init(signal: AbortSignal): void {
 
 void features.add(import.meta.url, {
 	asLongAs: [
-		userCanLikelyMergePr,
+		userHasPushAccess,
 	],
 	include: [
 		pageDetect.isPRConversation,
