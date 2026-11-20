@@ -10,6 +10,8 @@ function initOnce(): void {
 		`.react-issue-comment .markdown-body a[href]:not(.${linkifiedUrlClass})`, // Issue comments
 		`.react-issue-body .markdown-body a[href]:not(.${linkifiedUrlClass})`, // First issue comment
 		`[data-testid="review-thread"] .markdown-body a[href]:not(.${linkifiedUrlClass})`, // React commit view
+		`[data-testid="timeline-item"] .markdown-body a[href]:not(.${linkifiedUrlClass})`, // PR Overview page comments #10381
+		`section[aria-label="Description"] .markdown-body a[href]:not(.${linkifiedUrlClass})`, // PR Overview page description
 	], shortenLink);
 }
 
