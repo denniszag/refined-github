@@ -1,6 +1,6 @@
 import React from 'dom-chef';
 import * as pageDetect from 'github-url-detection';
-import {$, closestElement, countElements} from 'select-dom';
+import {$, $optional, closestElement, countElements} from 'select-dom';
 
 import features from '../feature-manager.js';
 import getDefaultBranch from '../github-helpers/get-default-branch.js';
@@ -71,6 +71,8 @@ void features.add(import.meta.url, {
 	exclude: [
 		// Don't clear 1-commit PRs #3140
 		() => countElements('.TimelineItem.js-commit') === 1,
+		// New PR Overview page #10381
+		() => $optional('#prs-commits-anchor-tab [data-component="CounterLabel"]')?.textContent.trim() === '1',
 	],
 	awaitDomReady: true, // Appears near the end of the page anyway
 	requiresToken: true,

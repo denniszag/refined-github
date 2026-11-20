@@ -336,7 +336,11 @@ export const conversationCloseEvent_ = [
 	[4, 'https://github.com/refined-github/refined-github/pull/4030'],
 ];
 
-export const confirmMergeButton = '[data-testid="mergebox-partial"] [class*="ConfirmMerge"] ~ div button:first-child';
+export const confirmMergeButton = is(
+	'[data-testid="mergebox-partial"]',
+	// New PR Overview page #10381
+	'[role="dialog"]',
+) + ' [class*="ConfirmMerge"] ~ div button:first-child';
 export const confirmMergeButton_ = requiresLogin;
 
 /* NOTE: Must be a hash, not a generic selector */
