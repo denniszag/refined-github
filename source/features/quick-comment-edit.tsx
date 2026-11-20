@@ -7,9 +7,9 @@ import {$, closestElement, elementExists} from 'select-dom';
 import {withTooltipRef} from '../components/tooltip.js';
 import features from '../feature-manager.js';
 import {userIsModerator} from '../github-helpers/get-user-permission.js';
-import {isArchivedRepoAsync} from '../github-helpers/index.js';
+import {getLoggedInUser, isArchivedRepoAsync} from '../github-helpers/index.js';
 import withMenuOpen from '../github-helpers/with-menu-open.js';
-import {is} from '../helpers/css-selectors.js';
+import {has, is} from '../helpers/css-selectors.js';
 import onElementRemoval from '../helpers/on-element-removal.js';
 import observe from '../helpers/selector-observer.js';
 
@@ -114,7 +114,10 @@ async function init(signal: AbortSignal): Promise<void> {
 			'[class^="IssueBodyHeader"]',
 			'[data-testid="comment-header"]',
 		)
-			+ (isUserModerator ? '' : '[class*="viewerDidAuthor" i]')
+			+ (isUserModerator ? '' : is(
+				'[class*="viewerDidAuthor" i]', // Issues
+				has(`a[data-testid="avatar-link"][href="/${getLoggedInUser()!}" i]`), // PR Overview page #10381
+			))
 			+ ' '
 			+ 'button[data-component="IconButton"]:has(> .octicon-kebab-horizontal)',
 		addQuickEditButton,
