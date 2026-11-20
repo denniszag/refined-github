@@ -123,10 +123,27 @@ async function cleanPrHeader(headRef: HTMLElement): Promise<void> {
 	replaceFromWithArrow(base);
 }
 
+// PR Overview page #10381: GitHub already shows the arrow and the author, and no commit count
+async function cleanOverviewBaseBranch(base: HTMLAnchorElement): Promise<void> {
+	base.classList.add('rgh-base-branch');
+
+	// The next sibling is a tooltip with the full reference, e.g. "owner/repo:branch"
+	const baseBranch = parseReferenceRaw(base.nextElementSibling!.textContent, base.textContent).branch;
+
+	// Don't await https://github.com/refined-github/refined-github/issues/8331
+	void highlightNonDefaultBranchPrs(base, baseBranch);
+	void removeBaseRepo(base);
+}
+
 async function init(signal: AbortSignal): Promise<void> {
 	observe(
 		'a[data-component="BranchName"] ~ div a[data-component="BranchName"]',
 		cleanPrHeader,
+		{signal},
+	);
+	observe(
+		'[class*="baseBranchGroup"] > a[data-component="BranchName"]:not(.rgh-base-branch)',
+		cleanOverviewBaseBranch,
 		{signal},
 	);
 }
