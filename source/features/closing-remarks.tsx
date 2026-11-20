@@ -1,6 +1,6 @@
 import React from 'dom-chef';
 import * as pageDetect from 'github-url-detection';
-import {$, $$optional} from 'select-dom';
+import {$$, $$optional} from 'select-dom';
 import {type ComponentProps, mount} from 'svelte';
 import {CachedFunction} from 'webext-storage-cache';
 
@@ -10,7 +10,7 @@ import waitForPrMerge from '../github-events/on-pr-merge.js';
 import {userHasPushAccess} from '../github-helpers/get-user-permission.js';
 import {buildRepoUrl, getRepo} from '../github-helpers/index.js';
 import fetchDom from '../helpers/fetch-dom.js';
-import observe from '../helpers/selector-observer.js';
+import observe, {waitForElement} from '../helpers/selector-observer.js';
 import ClosingRemarks from './closing-remarks.svelte';
 
 const firstTag = new CachedFunction('first-tag', {
@@ -29,21 +29,36 @@ const firstTag = new CachedFunction('first-tag', {
 	cacheKey: ([commit]) => [getRepo()!.nameWithOwner, commit].join(':'),
 });
 
-function getMergeCommitHash(): string {
-	const mergeCommit = $(`.TimelineItem.js-details-container.Details a[href^="/${getRepo()!.nameWithOwner}/commit/" i]`);
+async function getMergeCommitHash(signal: AbortSignal): Promise<string | undefined> {
+	const mergeCommit = await waitForElement([
+		`.TimelineItem.js-details-container.Details a[href^="/${getRepo()!.nameWithOwner}/commit/" i]`,
+		// PR Overview page, rendered after DOM ready #10381
+		'[data-testid="for-you-item-row"][data-item-id="merged"] a[data-hovercard-type="commit"]',
+	], {signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)])});
+	if (!mergeCommit) {
+		return;
+	}
+
 	return /commit\/(?<hash>[0-9a-f]{40})/.exec(mergeCommit.pathname)!.groups!.hash;
 }
 
 function mountClosingRemarks(props: ComponentProps<typeof ClosingRemarks>, signal: AbortSignal): void {
 	const container = <div />;
 	mount(ClosingRemarks, {target: container, props});
-	observe('.js-discussion', anchor => {
+	observe([
+		'.js-discussion',
+		'[class^="CondensedForYouContainer"]', // PR Overview page #10381
+	], anchor => {
 		anchor.after(container);
 	}, {signal});
 }
 
 async function init(signal: AbortSignal): Promise<void> {
-	const mergeCommit = getMergeCommitHash();
+	const mergeCommit = await getMergeCommitHash(signal);
+	if (!mergeCommit) {
+		return;
+	}
+
 	const tagName = await firstTag.get(mergeCommit);
 	if (!tagName) {
 		mountClosingRemarks({mergeCommit}, signal);
@@ -52,6 +67,11 @@ async function init(signal: AbortSignal): Promise<void> {
 
 	mountClosingRemarks({tagName, mergeCommit}, signal);
 	observe('[class*="summaryContainer"] relative-time', relativeTime => {
+		// The PR Overview page shows both the "opened" and "merged" times; only tag the latter #10381
+		if (relativeTime !== $$('[class*="summaryContainer"] relative-time').at(-1)) {
+			return;
+		}
+
 		mount(HeaderTag, {target: relativeTime.parentElement!, props: {tagName}});
 	}, {signal});
 }
