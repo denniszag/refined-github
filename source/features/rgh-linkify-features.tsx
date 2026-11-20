@@ -84,6 +84,7 @@ function init(signal: AbortSignal): void {
 		[
 			'.js-issue-title code', // `isPRConversation`, Old view `isIssue`
 			'h1[class^="prc-PageHeader-Title"] code', // `isPRFiles`,
+			'[data-component="TitleArea"] h1 code', // `isPRConversation`, PR Overview page #10381
 			'[data-testid="issue-title"] code', // `isIssue`
 			'.js-comment-body code', // Old view `hasComments`
 			'.markdown-body code', // `hasComments`, `isReleasesOrTags`
