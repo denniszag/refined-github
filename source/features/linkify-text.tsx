@@ -20,6 +20,7 @@ function init(signal: AbortSignal): void {
 	observe(
 		[
 			'[data-component="TitleArea"] .markdown-title', // Issue and PR React View Title
+			'[data-component="TitleArea"] h1 [class^="markdownTitle"]', // PR Overview page title #10381
 			'.js-issue-title', // Discussions and legacy PR Files title
 		],
 		linkifyIssue,
