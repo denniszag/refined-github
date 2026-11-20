@@ -4,6 +4,7 @@ import {$} from 'select-dom';
 
 import features from '../feature-manager.js';
 import {onConversationTitleFieldKeydown} from '../github-events/on-field-keydown.js';
+import isPrOverview from '../github-helpers/is-pr-overview.js';
 import {assertNodeContent} from '../helpers/dom-utils.js';
 
 function handleEscPress(event: DelegateEvent<KeyboardEvent>): void {
@@ -33,6 +34,10 @@ void features.add(import.meta.url, {
 	},
 	include: [
 		pageDetect.isPR,
+	],
+	exclude: [
+		// Native on the PR Overview page #10381
+		isPrOverview,
 	],
 	init,
 });
