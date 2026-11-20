@@ -19,6 +19,10 @@ const selectors = [
 	// https://togithub.com/porsager/postgres/pull/1169#issuecomment-6545968197
 	'.TimelineItem-body pre.ws-pre-wrap',
 
+	// `isPRConversation` commit titles, PR Overview page #10381
+	// https://github.com/refined-github/refined-github/pull/8809
+	'[data-testid="timeline-commit-row"] a[class^="Title"]',
+
 	// `isIssue` linked PRs
 	// https://github.com/refined-github/refined-github/issues/7856
 	'span[class*="PrTitle"]',
