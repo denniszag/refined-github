@@ -3,7 +3,7 @@ import * as pageDetect from 'github-url-detection';
 import {$} from 'select-dom';
 
 import features from '../feature-manager.js';
-import {has} from '../helpers/css-selectors.js';
+import {has, is} from '../helpers/css-selectors.js';
 import {wasInteractiveElementClicked} from './easy-toggle-commit-messages.js';
 
 function toggle(event: DelegateEvent<MouseEvent>): void {
@@ -15,6 +15,10 @@ function toggle(event: DelegateEvent<MouseEvent>): void {
 					'> .octicon-unfold',
 					'> .octicon-fold',
 				), // Issues
+				'button' + is(
+					'[aria-label^="Open review comment"]',
+					'[aria-label^="Close review comment"]',
+				), // PR Overview page #10381
 			],
 			event.delegateTarget,
 		).click();
@@ -29,6 +33,10 @@ function init(signal: AbortSignal): void {
 				'.octicon-unfold',
 				'.octicon-fold',
 			), // Issues
+			'[data-testid="review-thread-focus-target"] > article > [class^="header"]' + has(
+				'button[aria-label^="Open review comment"]',
+				'button[aria-label^="Close review comment"]',
+			), // PR Overview page #10381
 		],
 		'click',
 		toggle,
